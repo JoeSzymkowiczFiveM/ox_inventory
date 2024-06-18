@@ -1,6 +1,25 @@
-if not lib.checkDependency('ox_core', '0.21.3', true) then return end
+-- if not lib.checkDependency('ox_core', '0.21.3', true) then return end
 
-local Ox = require '@ox_core.lib.init' --[[@as OxServer]]
+-- local Ox = require '@ox_core.lib.init' --[[@as OxServer]]
+
+local resourceName = 'ox_core'
+
+if not GetResourceState(resourceName):find('start') then return end
+
+do
+	local file = ('imports/%s.lua'):format(lib.context)
+	local import = LoadResourceFile(resourceName, file)
+
+	if not import then return end
+
+	local func, err = load(import, ('@@%s/%s'):format(resourceName, file))
+
+	if not func or err then
+		return error(err or ('unable to load %s'):format(resourceName))
+	end
+
+	func()
+end
 
 local Inventory = require 'modules.inventory.server'
 

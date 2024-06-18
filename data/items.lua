@@ -133,30 +133,30 @@ return {
 		}
 	},
 
-	['lockpick'] = {
-		label = 'Lockpick',
-		weight = 160,
-	},
+	-- ['lockpick'] = {
+	-- 	label = 'Lockpick',
+	-- 	weight = 160,
+	-- },
 
-	['phone'] = {
-		label = 'Phone',
-		weight = 190,
-		stack = false,
-		consume = 0,
-		client = {
-			add = function(total)
-				if total > 0 then
-					pcall(function() return exports.npwd:setPhoneDisabled(false) end)
-				end
-			end,
+	-- ['phone'] = {
+	-- 	label = 'Phone',
+	-- 	weight = 190,
+	-- 	stack = false,
+	-- 	consume = 0,
+	-- 	client = {
+	-- 		add = function(total)
+	-- 			if total > 0 then
+	-- 				pcall(function() return exports.npwd:setPhoneDisabled(false) end)
+	-- 			end
+	-- 		end,
 
-			remove = function(total)
-				if total < 1 then
-					pcall(function() return exports.npwd:setPhoneDisabled(true) end)
-				end
-			end
-		}
-	},
+	-- 		remove = function(total)
+	-- 			if total < 1 then
+	-- 				pcall(function() return exports.npwd:setPhoneDisabled(true) end)
+	-- 			end
+	-- 		end
+	-- 	}
+	-- },
 
 	['money'] = {
 		label = 'Money',
@@ -187,12 +187,12 @@ return {
 		}
 	},
 
-	['radio'] = {
-		label = 'Radio',
-		weight = 1000,
-		stack = false,
-		allowArmed = true
-	},
+	-- ['radio'] = {
+	-- 	label = 'Radio',
+	-- 	weight = 1000,
+	-- 	stack = false,
+	-- 	allowArmed = true
+	-- },
 
 	['armour'] = {
 		label = 'Bulletproof Vest',
@@ -221,5 +221,404 @@ return {
 	['scrapmetal'] = {
 		label = 'Scrap Metal',
 		weight = 80,
+	},
+
+	['cola'] = {
+		label = 'eCola',
+		weight = 350,
+		client = {
+			status = { thirst = 200000 },
+			anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
+			prop = { model = `prop_ecola_can`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) },
+			usetime = 2500,
+			notification = 'You quenched your thirst with cola'
+		}
+	},
+
+	['beehive'] = {
+		label = 'Beehive',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_beekeeping.useHive',
+		},
+	},
+
+	['bee_queen'] = {
+		label = 'Queen Bee',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+	},
+
+	['bees_wax'] = {
+		label = 'Bees Wax',
+		weight = 30,
+		consume = 0,
+	},
+	['og_kush_seed'] = {
+		label = 'OG Kush Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
+	['og_kush'] = {
+		label = 'OG Kush Buds',
+		weight = 1000,
+		consume = 0,
+	},
+	['tomato_seed'] = {
+		label = 'Tomato Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
+	['barley_seed'] = {
+		label = 'Barley Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
+	['tobacco_seed'] = {
+		label = 'Tobacco Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
+	['tobacco'] = {
+		label = 'Tobacco Leaf',
+		weight = 1000,
+		consume = 0,
+	},
+	['plant_nutrition'] = {
+		label = 'Plant Nutrition',
+		weight = 3000,
+	},
+	['radio'] = {
+		label = 'Radio',
+		weight = 1000,
+		stack = false,
+		allowArmed = true,
+		client = {
+			export = 'js5m_radio.useRadio',
+			add = function(total)
+				if total > 0 then
+					pcall(function() return exports.js5m_radio:pickupRadio() end)
+				end
+			end,
+			remove = function(total)
+				if total < 1 then
+					pcall(function() return exports.js5m_radio:dropRadio() end)
+				end
+			end
+		},
+	},
+	['phone'] = {
+		label = 'Phone',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_phone.UsePhone',
+			test = 'phone?'
+		},
+	},
+
+	['rolex'] = {
+		label = 'Rolex',
+		weight = 1500,
+	},
+
+	['diamond_ring'] = {
+		label = 'Diamond Ring',
+		weight = 1500,
+	},
+
+	['goldchain'] = {
+		label = 'Gold Chain',
+		weight = 1000,
+	},
+
+	['10kgoldchain'] = {
+		label = '10k Gold Chain',
+		weight = 2000,
+	},
+
+	--New Job Items
+	['newsmic'] = {
+		label = 'News Microphone',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_newsjob.toggleMic',
+		},
+	},
+
+	['newsbmic'] = {
+		label = 'News Boom Mic',
+		weight = 3000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_newsjob.toggleBMic',
+		},
+	},
+
+	['newscam'] = {
+		label = 'News Camera',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_newsjob.toggleCam',
+		},
+	},
+
+	['spraypaint'] = {
+		label = 'Spray Paint',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_gangs.UseSprayPaint',
+		},
+		-- client = {
+		-- 	export = 'js5m_newsjob.toggleCam',
+		-- },
+	},
+
+	['sprayremover'] = {
+		label = 'Paint Stripper',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_gangs.UseSprayRemover',
+		},
+		-- client = {
+		-- 	export = 'js5m_newsjob.toggleCam',
+		-- },
+	},
+
+	['camping_tent'] = {
+		label = 'Camping Tent',
+		weight = 5000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_camping.useTent',
+		},
+	},
+
+	['stickynote'] = {
+		label = 'Sticky Note',
+		weight = 500,
+		stack = false,
+		consume = 0,
+	},
+
+	['gunrack'] = {
+		label = 'Gun Rack',
+		weight = 5000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_gunrack.placeGunRack',
+		},
+	},
+
+	['coal_ore'] = {
+		label = 'Coal Ore',
+		weight = 200,
+		stack = true,
+		consume = 0,
+	},
+	['diamond_ore'] = {
+		label = 'Diamond Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['iron_ore'] = {
+		label = 'Iron Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['silver_ore'] = {
+		label = 'Silver Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['gold_ore'] = {
+		label = 'Gold Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['tin_ore'] = {
+		label = 'Tin Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['crystal_ore'] = {
+		label = 'Crystal Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['copper_ore'] = {
+		label = 'Copper Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['lead_ore'] = {
+		label = 'Lead Ore',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['iron_ingot'] = {
+		label = 'Iron Ingot',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['copper_ingot'] = {
+		label = 'Copper Ingot',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['gold_ingot'] = {
+		label = 'Gold Ingot',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['lead_ingot'] = {
+		label = 'Lead Ingot',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['diamond_ingot'] = {
+		label = 'Diamond Ingot',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+	['coal'] = {
+		label = 'Coal',
+		weight = 300,
+		stack = true,
+		consume = 0,
+	},
+
+	['hunting_deer_pelt_1'] = {
+		label = 'Deer Pelt Rank 1',
+		weight = 1000,
+		stack = true,
+		consume = 0,
+	},
+	['hunting_deer_pelt_2'] = {
+		label = 'Deer Pelt Rank 2',
+		weight = 1000,
+		stack = true,
+		consume = 0,
+	},
+	['hunting_deer_pelt_3'] = {
+		label = 'Deer Pelt Rank 3',
+		weight = 1000,
+		stack = true,
+		consume = 0,
+	},
+
+	['barrier'] = {
+		label = 'Barrier',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_objectspawner.placeObject',
+		},
+		hash = `prop_barrier_work01b`,
+	},
+
+	['construction_sign'] = {
+		label = 'Construction Sign',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_objectspawner.placeObject',
+		},
+		hash = `prop_barrier_work01d`,
+	},
+	['weedrack_a'] = {
+		label = 'Weed Rack',
+		weight = 2000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_weed.useWeedrack',
+		},
+	},
+	['weedrack_b'] = {
+		label = 'Weed Rack',
+		weight = 2000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_weed.useWeedrack',
+		},
+	},
+	['weedrack_c'] = {
+		label = 'Weed Rack',
+		weight = 2000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_weed.useWeedrack',
+		},
+	},
+	['tobaccorack_a'] = {
+		label = 'Tobacco Rack',
+		weight = 2000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_weed.useWeedrack',
+		},
+	},
+	['lockpick'] = {
+		label = 'Lockpick',
+		weight = 160,
+		client = {
+			event = 'lockpick:use'
+		},
+	},
+	['advancedlockpick'] = {
+		label = 'Advanced Lockpick',
+		weight = 500,
+		client = {
+			event = 'lockpick:use'
+		},
+	},
+	['vehiclekey'] = {
+		label = 'Vehicle Key'
 	},
 }

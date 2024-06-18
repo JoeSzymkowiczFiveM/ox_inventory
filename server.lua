@@ -5,7 +5,8 @@ if GetConvar('inventory:versioncheck', 'true') == 'true' then
 end
 
 local TriggerEventHooks = require 'modules.hooks.server'
-local db = require 'modules.mysql.server'
+-- local db = require 'modules.mysql.server'
+local db = require 'modules.kvp.server'
 local Items = require 'modules.items.server'
 local Inventory = require 'modules.inventory.server'
 
@@ -565,7 +566,8 @@ lib.addCommand('clearevidence', {
 	local hasPermission = group and server.isPlayerBoss(source, group, grade)
 
 	if hasPermission then
-		MySQL.query('DELETE FROM ox_inventory WHERE name = ?', {('evidence-%s'):format(args.locker)})
+		-- MySQL.query('DELETE FROM ox_inventory WHERE name = ?', {('evidence-%s'):format(args.locker)}) -- TODO: fix this
+		db.deleteEvidence(('evidence-%s'):format(args.locker))
 	end
 end)
 

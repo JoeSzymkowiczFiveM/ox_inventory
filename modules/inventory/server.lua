@@ -1,4 +1,5 @@
 if not lib then return end
+local db = require 'modules.kvp.server'
 
 local Inventory = {}
 
@@ -498,7 +499,8 @@ local function hasActiveInventory(playerId, owner)
 			end
 
 			Inventory.CloseAll(inventory)
-			db.savePlayer(owner, json.encode(inventory:minimal()))
+			-- db.savePlayer(owner, json.encode(inventory:minimal()))
+			db.savePlayer(inventory.owner, inventory:minimal())
 			Inventory.Remove(inventory)
 			Wait(100)
 		end
@@ -538,7 +540,8 @@ RegisterCommand('clearActiveIdentifier', function(source, args)
     end
 
     Inventory.CloseAll(inventory)
-    db.savePlayer(inventory.owner, json.encode(inventory:minimal()))
+    -- db.savePlayer(inventory.owner, json.encode(inventory:minimal()))
+	db.savePlayer(inventory.owner, inventory:minimal())
     Inventory.Remove(inventory)
 end, true)
 
@@ -819,9 +822,9 @@ function Inventory.Load(id, invType, owner)
 
 	local returnData, weight = {}, 0
 
-	if result and type(result) == 'string' then
-		result = json.decode(result)
-	end
+	-- if result and type(result) == 'string' then
+	-- 	result = json.decode(result)
+	-- end
 
 	if result then
 		local ostime = os.time()
@@ -1967,13 +1970,15 @@ function Inventory.Return(source)
 
 	if not inv?.player then return end
 
-	local items = MySQL.scalar.await('SELECT data FROM ox_inventory WHERE name = ?', { inv.owner })
+	local items = ludb:retrieve("ox_inventory/"..inv.owner) or {} -- TODO: FIX THIS, seems like it might be the wrong key
+	-- local items = MySQL.scalar.await('SELECT data FROM ox_inventory WHERE name = ?', { inv.owner })
 
     if not items then return end
 
-	MySQL.update.await('DELETE FROM ox_inventory WHERE name = ?', { inv.owner })
-
-    items = json.decode(items)
+	-- MySQL.update.await('DELETE FROM ox_inventory WHERE name = ?', { inv.owner })
+	ludb:delete("ox_inventory/"..inv.owner)
+	
+    -- items = json.decode(items)
     local inventory, totalWeight = {}, 0
 
     if table.type(items) == 'array' then
@@ -2268,7 +2273,8 @@ local function prepareInventorySave(inv, buffer, time)
 
     if not shouldSave then return end
 
-    local data = next(buffer) and json.encode(buffer) or nil
+    -- local data = next(buffer) and json.encode(buffer) or nil
+	local data = next(buffer) and lib.table.deepclone(buffer) or nil
     inv.changed = false
     table.wipe(buffer)
 
