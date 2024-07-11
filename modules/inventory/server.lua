@@ -696,7 +696,9 @@ function Inventory.Save(inv)
         end
     end
 
-    local data = next(buffer) and json.encode(buffer) or nil
+    -- local data = next(buffer) and json.encode(buffer) or nil
+	-- local data = next(buffer) and lib.table.deepclone(buffer) or nil
+	local data = next(buffer) and buffer or nil -- TODO: Does this fix stringed inventories?
     inv.changed = false
 
     if inv.player then
@@ -807,14 +809,15 @@ function Inventory.Load(id, invType, owner)
 	local result
 
     if invType == 'trunk' or invType == 'glovebox' then
+		-- print("id", id, "invType", invType, "owner", owner)
         result = id and (invType == 'trunk' and db.loadTrunk(id) or db.loadGlovebox(id))
-
+		
         if not result then
             if server.randomloot then
                 return generateItems(id, 'vehicle')
             end
-        else
-            result = result[invType]
+        -- else
+        --     result = result[invType] --default returns the whole mysql row and then selects column. we dont need that
         end
 	elseif invType == 'dumpster' then
 		if server.randomloot then
@@ -824,6 +827,8 @@ function Inventory.Load(id, invType, owner)
 		result = db.loadStash(owner or '', id)
 	end
 
+	-- print('result', result, 'type', type(result))
+	-- print(json.encode(result, {indent=true}))
 	local returnData, weight = {}, 0
 
 	-- if result and type(result) == 'string' then
@@ -843,6 +848,7 @@ function Inventory.Load(id, invType, owner)
 			end
 		end
 	end
+	-- print(json.encode(returnData, {indent=true}))
 
 	return returnData, weight
 end
@@ -1957,7 +1963,7 @@ function Inventory.Confiscate(source)
 	local inv = Inventories[source]
 
 	if inv?.player then
-		db.saveStash(inv.owner, inv.owner, json.encode(minimal(inv)))
+		db.saveStash(inv.owner, inv.owner, json.encode(minimal(inv))) -- TODO: Might need to fix this too
 		table.wipe(inv.items)
 		inv.weight = 0
 		inv.changed = true
@@ -2486,7 +2492,7 @@ local function updateWeapon(source, action, value, slot, specialAmmo)
 							{ item = item }
 						}, inventory.weight)
 
-			            if server.syncInventory then server.syncInventory(inventory) end
+						if server.syncInventory then server.syncInventory(inventory) end
 
 						return true
 					end

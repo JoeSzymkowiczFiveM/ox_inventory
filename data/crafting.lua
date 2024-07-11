@@ -4,11 +4,11 @@ return {
 			{
 				name = 'lockpick',
 				ingredients = {
-					scrapmetal = 5,
-					WEAPON_HAMMER = 0.05
+					scrapmetal = 3,
+					WEAPON_HAMMER = 0.03
 				},
 				duration = 5000,
-				count = 2,
+				count = 1,
 			},
 		},
 		points = {

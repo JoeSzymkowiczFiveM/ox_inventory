@@ -62,7 +62,7 @@ if IsDuplicityVersion() then
 				["mustard", 1, 1],
 				["garbage", 1, 3],
 				["money", 1, 10],
-				["burger", 1, 1]
+				["scrapmetal", 1, 1]
 			]
 		]])),
     }

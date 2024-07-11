@@ -234,7 +234,6 @@ return {
 			notification = 'You quenched your thirst with cola'
 		}
 	},
-
 	['beehive'] = {
 		label = 'Beehive',
 		weight = 1000,
@@ -244,14 +243,12 @@ return {
 			export = 'js5m_beekeeping.useHive',
 		},
 	},
-
 	['bee_queen'] = {
 		label = 'Queen Bee',
 		weight = 1000,
 		stack = false,
 		consume = 0,
 	},
-
 	['bees_wax'] = {
 		label = 'Bees Wax',
 		weight = 30,
@@ -329,30 +326,24 @@ return {
 		consume = 0,
 		server = {
 			export = 'js5m_phone.UsePhone',
-			test = 'phone?'
 		},
 	},
-
 	['rolex'] = {
 		label = 'Rolex',
 		weight = 1500,
 	},
-
 	['diamond_ring'] = {
 		label = 'Diamond Ring',
 		weight = 1500,
 	},
-
 	['goldchain'] = {
 		label = 'Gold Chain',
 		weight = 1000,
 	},
-
 	['10kgoldchain'] = {
 		label = '10k Gold Chain',
 		weight = 2000,
 	},
-
 	--New Job Items
 	['newsmic'] = {
 		label = 'News Microphone',
@@ -373,7 +364,6 @@ return {
 			export = 'js5m_newsjob.toggleBMic',
 		},
 	},
-
 	['newscam'] = {
 		label = 'News Camera',
 		weight = 1000,
@@ -383,7 +373,6 @@ return {
 			export = 'js5m_newsjob.toggleCam',
 		},
 	},
-
 	['spraypaint'] = {
 		label = 'Spray Paint',
 		weight = 1000,
@@ -396,7 +385,6 @@ return {
 		-- 	export = 'js5m_newsjob.toggleCam',
 		-- },
 	},
-
 	['sprayremover'] = {
 		label = 'Paint Stripper',
 		weight = 1000,
@@ -409,7 +397,6 @@ return {
 		-- 	export = 'js5m_newsjob.toggleCam',
 		-- },
 	},
-
 	['camping_tent'] = {
 		label = 'Camping Tent',
 		weight = 5000,
@@ -419,14 +406,12 @@ return {
 			export = 'js5m_camping.useTent',
 		},
 	},
-
 	['stickynote'] = {
 		label = 'Sticky Note',
 		weight = 500,
 		stack = false,
 		consume = 0,
 	},
-
 	['gunrack'] = {
 		label = 'Gun Rack',
 		weight = 5000,
@@ -436,7 +421,6 @@ return {
 			export = 'js5m_gunrack.placeGunRack',
 		},
 	},
-
 	['coal_ore'] = {
 		label = 'Coal Ore',
 		weight = 200,
@@ -527,7 +511,6 @@ return {
 		stack = true,
 		consume = 0,
 	},
-
 	['hunting_deer_pelt_1'] = {
 		label = 'Deer Pelt Rank 1',
 		weight = 1000,
@@ -546,7 +529,6 @@ return {
 		stack = true,
 		consume = 0,
 	},
-
 	['barrier'] = {
 		label = 'Barrier',
 		weight = 1000,
@@ -557,7 +539,6 @@ return {
 		},
 		hash = `prop_barrier_work01b`,
 	},
-
 	['construction_sign'] = {
 		label = 'Construction Sign',
 		weight = 1000,
@@ -620,5 +601,108 @@ return {
 	},
 	['vehiclekey'] = {
 		label = 'Vehicle Key'
+	},
+	['laptop'] = {
+		label = 'Laptop',
+		weight = 500,
+		client = {
+			event = 'cuchi_computer:useItem'
+		},
+	},
+	['crypto_rig'] = {
+		label = 'Crypto Rig',
+		weight = 2000,
+		stack = false,
+		consume = 0,
+		-- client = {
+		-- 	export = 'js5m_crypto.useMiningRig',
+		-- },
+	},
+	['car_battery'] = {
+		label = 'Car Battery',
+		weight = 5000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_crypto.useCarBattery',
+		},
+	},
+	['crypto_gpu'] = {
+		label = 'Crypto GPU',
+		weight = 1000,
+		consume = 0,
+	},
+	['joint'] = {
+		label = 'Joint',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_consumables.useJoint',
+		},
+	},
+	['meth'] = {
+		label = 'Joint',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_consumables.useMeth',
+		},
+	},
+	['coke_baggy'] = {
+		label = 'Coke Baggy',
+		weight = 200,
+		consume = 0,
+		client = {
+			export = 'js5m_consumables.useCokeBaggy',
+		},
+	},
+	['crack_baggy'] = {
+		label = 'Cracky Baggy',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_consumables.useCrackBaggy',
+		},
+	},
+	['xtc_baggy'] = {
+		label = 'Ecstacy Baggy',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_consumables.useXtcBaggy',
+		},
+	},
+	['oxy'] = {
+		label = 'Oxy',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_consumables.useOxy',
+		},
+	},
+	['case_prisma2'] = {
+		label = 'Prisma 2 Case',
+		weight = 3000,
+		consume = 0,
+		server = {
+			export = 'js5m_lootcrate_ox.UseLootCrate',
+		},
+	},
+	['backpack'] = {
+		label = 'Backpack',
+		weight = 220,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_backpack.openBackpack'
+		}
+	},
+	['scraplist'] = {
+		label = 'Scrap List',
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_scrapyard.openList'
+		}
 	},
 }
