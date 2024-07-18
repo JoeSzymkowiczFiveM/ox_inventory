@@ -222,7 +222,26 @@ return {
 		label = 'Scrap Metal',
 		weight = 80,
 	},
-
+	['plastic'] = {
+		label = 'Plastic',
+		weight = 50,
+	},
+	['aluminum'] = {
+		label = 'Aluminum',
+		weight = 70,
+	},
+	['glass'] = {
+		label = 'Glass',
+		weight = 65,
+	},
+	['rubber'] = {
+		label = 'Rubber',
+		weight = 65,
+	},
+	['electronickit'] = {
+		label = 'Electronics Kit',
+		weight = 250,
+	},
 	['cola'] = {
 		label = 'eCola',
 		weight = 350,
@@ -588,6 +607,7 @@ return {
 	['lockpick'] = {
 		label = 'Lockpick',
 		weight = 160,
+		stack = false,
 		client = {
 			event = 'lockpick:use'
 		},
@@ -595,6 +615,7 @@ return {
 	['advancedlockpick'] = {
 		label = 'Advanced Lockpick',
 		weight = 500,
+		stack = false,
 		client = {
 			event = 'lockpick:use'
 		},
@@ -704,5 +725,36 @@ return {
 		server = {
 			export = 'js5m_scrapyard.openList'
 		}
+	},
+	['tradingcard_pack_evolving'] = {
+		label = 'Phone',
+		weight = 1000,
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_tradingcards.UseTradingCardPack',
+		},
+	},
+	['coffee'] = {
+		label = 'Coffee',
+		weight = 350,
+		client = {
+			status = { thirst = 200000 },
+			anim = { dict = 'amb@world_human_drinking@coffee@male@idle_a', clip = 'idle_c' },
+			prop = { model = `p_ing_coffeecup_01`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) },
+			usetime = 3500,
+			notification = 'You quenched your thirst with cola'
+		}
+	},
+	['fishing_rod'] = {
+		label = 'Fishing Rod',
+		stack = false,
+		consume = 0,
+		server = {
+			export = 'js5m_fishing.UseFishingRod'
+		}
+	},
+	['fishing_bait'] = {
+		label = 'Fishing Bait',
 	},
 }
