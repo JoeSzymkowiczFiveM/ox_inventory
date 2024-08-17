@@ -1291,18 +1291,18 @@ RegisterNetEvent('ox_inventory:setPlayerInventory', function(currentDrops, inven
 		end
 	end
 
-	for id, data in pairs(lib.load('data.licenses')) do
-		lib.points.new({
-			coords = data.coords,
-			distance = 16,
-			inv = 'license',
-			type = data.name,
-			price = data.price,
-			invId = id,
-			nearby = nearbyLicense,
-			message = ('**%s**  \n%s'):format(locale('purchase_license', data.name), locale('interact_prompt', GetControlInstructionalButton(0, 38, true):sub(3)))
-		})
-	end
+	-- for id, data in pairs(lib.load('data.licenses')) do
+	-- 	lib.points.new({
+	-- 		coords = data.coords,
+	-- 		distance = 16,
+	-- 		inv = 'license',
+	-- 		type = data.name,
+	-- 		price = data.price,
+	-- 		invId = id,
+	-- 		nearby = nearbyLicense,
+	-- 		message = ('**%s**  \n%s'):format(locale('purchase_license', data.name), locale('interact_prompt', GetControlInstructionalButton(0, 38, true):sub(3)))
+	-- 	})
+	-- end
 
 	while not client.uiLoaded do Wait(50) end
 

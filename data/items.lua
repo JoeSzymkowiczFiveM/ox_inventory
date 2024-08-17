@@ -68,15 +68,51 @@ return {
 		label = 'Dirty Money',
 	},
 
-	['burger'] = {
-		label = 'Burger',
+	['burgershot_bleeder'] = {
+		label = 'Bleeder Burger',
 		weight = 220,
 		client = {
 			status = { hunger = 200000 },
 			anim = 'eating',
 			prop = 'burger',
 			usetime = 2500,
-			notification = 'You ate a delicious burger'
+			notification = 'You ate a delicious Bleeder Burger'
+		},
+	},
+
+	['burgershot_moneyshot'] = {
+		label = 'Money Shot Burger',
+		weight = 250,
+		client = {
+			status = { hunger = 300000 },
+			anim = 'eating',
+			prop = 'burger',
+			usetime = 3500,
+			notification = 'You ate a delicious Money Shot Burger'
+		},
+	},
+
+	['burgershot_heartstopper'] = {
+		label = 'Heart Stopper Burger',
+		weight = 290,
+		client = {
+			status = { hunger = 400000 },
+			anim = 'eating',
+			prop = 'burger',
+			usetime = 5000,
+			notification = 'You ate a delicious Heart Stopper Burger'
+		},
+	},
+
+	['burgershot_fries'] = {
+		label = 'Fries',
+		weight = 150,
+		client = {
+			status = { hunger = 100000 },
+			anim = 'eating',
+			prop = { model = `nels_fries_box_prop`, pos = vec3(0.02, 0.02, -0.02), rot = vec3(90.0, 270.0, 0.0) },
+			usetime = 2500,
+			notification = 'You ate some delicious Fries'
 		},
 	},
 
@@ -283,7 +319,33 @@ return {
 	},
 	['og_kush'] = {
 		label = 'OG Kush Buds',
-		weight = 1000,
+		weight = 200,
+		consume = 0,
+	},
+	['sour_diesel_seed'] = {
+		label = 'Sour Diesel Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
+	['sour_diesel'] = {
+		label = 'Sour Diesel Buds',
+		weight = 200,
+		consume = 0,
+	},
+	['white_widow_seed'] = {
+		label = 'White Widow Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
+	['white_widow'] = {
+		label = 'White Widow Buds',
+		weight = 200,
 		consume = 0,
 	},
 	['tomato_seed'] = {
@@ -373,7 +435,6 @@ return {
 			export = 'js5m_newsjob.toggleMic',
 		},
 	},
-
 	['newsbmic'] = {
 		label = 'News Boom Mic',
 		weight = 3000,
@@ -625,9 +686,9 @@ return {
 	},
 	['laptop'] = {
 		label = 'Laptop',
-		weight = 500,
+		weight = 5000,
 		client = {
-			event = 'cuchi_computer:useItem'
+			export = 'cuchi_computer.useItem'
 		},
 	},
 	['crypto_rig'] = {
@@ -741,8 +802,8 @@ return {
 		client = {
 			status = { thirst = 200000 },
 			anim = { dict = 'amb@world_human_drinking@coffee@male@idle_a', clip = 'idle_c' },
-			prop = { model = `p_ing_coffeecup_01`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) },
-			usetime = 3500,
+			prop = { model = `p_ing_coffeecup_01`, pos = vec3(0.01, 0.01, 0.00), rot = vec3(5.0, 5.0, -180.5), bone = 28422 },
+			usetime = 6000,
 			notification = 'You quenched your thirst with cola'
 		}
 	},
@@ -756,5 +817,79 @@ return {
 	},
 	['fishing_bait'] = {
 		label = 'Fishing Bait',
+	},
+	['pills_anxiety'] = {
+		label = 'Anxiety Pills',
+		weight = 350,
+		client = {
+			status = { stress = -2500 },
+			anim = { dict = 'mp_suicide', clip = 'pill', flag = 49 },
+			usetime = 2500,
+			notification = 'You feel a bit better'
+		},
+	},
+	['mask_3'] = {
+		label = 'Monkey Mask',
+		weight = 2000,
+		client = {
+			export = 'js5m_misc.useMask'
+		},
+	},
+	['mask_35'] = {
+		label = 'Balaclava',
+		weight = 2000,
+		client = {
+			export = 'js5m_misc.useMask'
+		},
+	},
+	["id_card"] = {
+		label = "ID Card",
+		weight = 0,
+		stack = false,
+		consume = 0,
+		description = "A card containing all your information to identify yourself",
+		server = {
+			export = 'js5m_idcard.UseIdCard'
+		},
+		client = {
+			anim = { dict = 'paper_1_rcm_alt1-9', clip = 'player_one_dual-9' },
+			prop = { model = `prop_franklin_dl`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+			disable = { move = true, combat = true },
+			usetime = 5000,
+		}
+	},
+
+    ["driver_license"] = {
+		label = "Drivers License",
+		weight = 0,
+		stack = false,
+		consume = 0,
+		description = "Permit to show you can drive a vehicle",
+		server = {
+			export = 'js5m_idcard.UseIdCard'
+		},
+		client = {
+			anim = { dict = 'paper_1_rcm_alt1-9', clip = 'player_one_dual-9' },
+			prop = { model = `prop_franklin_dl`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+			disable = { move = true, combat = true },
+			usetime = 5000,
+		}
+	},
+
+	["weaponlicense"] = {
+		label = "Weapon License",
+		weight = 0,
+		stack = false,
+		consume = 0,
+		description = "Weapon License",
+		server = {
+			export = 'js5m_idcard.UseIdCard'
+		},
+		client = {
+			anim = { dict = 'paper_1_rcm_alt1-9', clip = 'player_one_dual-9' },
+			prop = { model = `prop_franklin_dl`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+			disable = { move = true, combat = true },
+			usetime = 5000,
+		}
 	},
 }

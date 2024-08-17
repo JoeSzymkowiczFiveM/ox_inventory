@@ -1969,9 +1969,9 @@ end)
 
 function Inventory.Confiscate(source)
 	local inv = Inventories[source]
-
 	if inv?.player then
-		db.saveStash(inv.owner, inv.owner, json.encode(minimal(inv))) -- TODO: Might need to fix this too
+		-- db.saveStash(inv.owner, inv.owner, json.encode(minimal(inv))) -- TODO: Might need to fix this too
+		db.saveStash(inv.owner, inv.owner, minimal(inv))
 		table.wipe(inv.items)
 		inv.weight = 0
 		inv.changed = true
@@ -1988,13 +1988,15 @@ function Inventory.Return(source)
 
 	if not inv?.player then return end
 
-	local items = ludb:retrieve("ox_inventory/"..inv.owner) or {} -- TODO: FIX THIS, seems like it might be the wrong key
+	local items = db.loadOxInventory(inv.owner)
+	-- local items = ludb:retrieve("ox_inventory/"..inv.owner) or {} -- TODO: FIX THIS, seems like it might be the wrong key
 	-- local items = MySQL.scalar.await('SELECT data FROM ox_inventory WHERE name = ?', { inv.owner })
 
     if not items then return end
 
 	-- MySQL.update.await('DELETE FROM ox_inventory WHERE name = ?', { inv.owner })
-	ludb:delete("ox_inventory/"..inv.owner)
+	-- ludb:delete("ox_inventory/"..inv.owner)
+	db.deleteOxInventory(inv.owner)
 	
     -- items = json.decode(items)
     local inventory, totalWeight = {}, 0

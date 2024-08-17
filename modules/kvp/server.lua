@@ -44,6 +44,14 @@ function db.deleteEvidence(name)
     return ludb:delete("ox_inventory/"..name)
 end
 
+function db.loadOxInventory(name)
+    return ludb:retrieve("ox_inventory/"..tostring(name).."/"..name) or {}
+end
+
+function db.deleteOxInventory(name)
+    return ludb:delete("ox_inventory/"..tostring(name).."/"..name)
+end
+
 ---@param players InventorySaveData[]
 ---@param trunks InventorySaveData[]
 ---@param gloveboxes InventorySaveData[]
@@ -66,25 +74,29 @@ function db.saveInventories(players, trunks, gloveboxes, stashes, total)
 
     if total[2] > 0 then
         Citizen.CreateThreadNow(function()
+            local count = 0
             for i=1, #trunks do
                 local trunk = trunks[i]
                 if trunk[2] then
                     ludb:save("trunk_inventory/"..trunk[2], trunk[1] or {})
+                    count += 1
                 end
             end
-            shared.info(('Saved %d/%d trunks (%.4f ms)'):format(#trunks, total[2], (os.nanotime() - start) / 1e6))
+            shared.info(('Saved %d/%d trunks (%.4f ms)'):format(count, total[2], (os.nanotime() - start) / 1e6))
         end)
     end
 
     if total[3] > 0 then
         Citizen.CreateThreadNow(function()
+            local count = 0
             for i=1, #gloveboxes do
                 local glovebox = gloveboxes[i]
                 if glovebox[2] then
                     ludb:save("glovebox_inventory/"..glovebox[2], glovebox[1] or {})
+                    count += 1
                 end
             end
-            shared.info(('Saved %d/%d gloveboxes (%.4f ms)'):format(#gloveboxes, total[3], (os.nanotime() - start) / 1e6))
+            shared.info(('Saved %d/%d gloveboxes (%.4f ms)'):format(count, total[3], (os.nanotime() - start) / 1e6))
         end)
     end
 
