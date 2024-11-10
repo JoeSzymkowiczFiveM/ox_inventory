@@ -793,7 +793,7 @@ local function generateItems(inv, invType, items)
 		local v = items[i]
 		local item = Items(v[1])
 		if not item then
-			warn('unable to generate', v[1], 'item does not exist')
+			warn('unable to generate ', v[1], ' item does not exist')
 		else
 			local metadata, count = Items.Metadata(inv, item, v[3] or {}, v[2])
 			local weight = Inventory.SlotWeight(item, {count=count, metadata=metadata})

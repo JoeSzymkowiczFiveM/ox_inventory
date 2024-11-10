@@ -4,7 +4,7 @@ local CraftingBenches = {}
 local Items = require 'modules.items.server'
 local Inventory = require 'modules.inventory.server'
 
----@param id number
+---@param id number | string
 ---@param data table
 local function createCraftingBench(id, data)
 	CraftingBenches[id] = {}

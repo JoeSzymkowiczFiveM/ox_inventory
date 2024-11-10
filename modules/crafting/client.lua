@@ -10,7 +10,7 @@ local prompt = {
     message = ('**%s**  \n%s'):format(locale('open_crafting_bench'), locale('interact_prompt', GetControlInstructionalButton(0, 38, true):sub(3)))
 }
 
----@param id number
+---@param id number | string
 ---@param data table
 local function createCraftingBench(id, data)
 	CraftingBenches[id] = {}

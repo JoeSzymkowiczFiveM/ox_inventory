@@ -722,6 +722,12 @@ return {
 			weight = 1334,
 			durability = 0.1,
 		},
+
+		['WEAPON_WELDER'] = {
+			label = 'Welder',
+			weight = 1334,
+			durability = 0.1,
+		},
 	},
 
 	Components = {

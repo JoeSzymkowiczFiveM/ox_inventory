@@ -10,7 +10,7 @@ Items.containers = require 'modules.items.containers'
 
 -- Possible metadata when creating garbage
 local trash = {
-	{description = 'A discarded burger carton.', weight = 50, image = 'trash_burger'},
+	-- {description = 'A discarded burger carton.', weight = 50, image = 'trash_burger'},
 	{description = 'An empty soda can.', weight = 20, image = 'trash_can'},
 	{description = 'A mouldy piece of bread.', weight = 70, image = 'trash_bread'},
 	{description = 'An empty chips bag.', weight = 5, image = 'trash_chips'},

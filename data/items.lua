@@ -335,6 +335,14 @@ return {
 		weight = 200,
 		consume = 0,
 	},
+	['ak47_seed'] = {
+		label = 'AK 47 Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
 	['white_widow_seed'] = {
 		label = 'White Widow Seed',
 		weight = 100,
@@ -406,7 +414,8 @@ return {
 		stack = false,
 		consume = 0,
 		server = {
-			export = 'js5m_phone.UsePhone',
+			-- export = 'js5m_phone.UsePhone',
+			export = 'z-phone.UsePhone',
 		},
 	},
 	['rolex'] = {
@@ -609,6 +618,12 @@ return {
 		stack = true,
 		consume = 0,
 	},
+	['animal_pelt'] = {
+		label = 'Animal Pelt',
+		weight = 1000,
+		consume = 0,
+		stack = true,
+	},
 	['barrier'] = {
 		label = 'Barrier',
 		weight = 1000,
@@ -787,15 +802,6 @@ return {
 			export = 'js5m_scrapyard.openList'
 		}
 	},
-	['tradingcard_pack_evolving'] = {
-		label = 'Phone',
-		weight = 1000,
-		stack = false,
-		consume = 0,
-		server = {
-			export = 'js5m_tradingcards.UseTradingCardPack',
-		},
-	},
 	['coffee'] = {
 		label = 'Coffee',
 		weight = 350,
@@ -830,14 +836,42 @@ return {
 	},
 	['mask_3'] = {
 		label = 'Monkey Mask',
-		weight = 2000,
+		weight = 1000,
+		client = {
+			export = 'js5m_misc.useMask'
+		},
+	},
+	['mask_34'] = {
+		label = 'Gnome Mask',
+		weight = 1000,
 		client = {
 			export = 'js5m_misc.useMask'
 		},
 	},
 	['mask_35'] = {
 		label = 'Balaclava',
-		weight = 2000,
+		weight = 1000,
+		client = {
+			export = 'js5m_misc.useMask'
+		},
+	},
+	['mask_46'] = {
+		label = 'Gas Mask',
+		weight = 1000,
+		client = {
+			export = 'js5m_misc.useMask'
+		},
+	},
+	['mask_115'] = {
+		label = 'Shemagh Mask',
+		weight = 1000,
+		client = {
+			export = 'js5m_misc.useMask'
+		},
+	},
+	['mask_179'] = {
+		label = 'Smiley Mask',
+		weight = 1000,
 		client = {
 			export = 'js5m_misc.useMask'
 		},
@@ -875,8 +909,7 @@ return {
 			usetime = 5000,
 		}
 	},
-
-	["weaponlicense"] = {
+	["weapon_license"] = {
 		label = "Weapon License",
 		weight = 0,
 		stack = false,
@@ -891,5 +924,46 @@ return {
 			disable = { move = true, combat = true },
 			usetime = 5000,
 		}
+	},
+	["cigarette_pack"] = {
+		label = "Pack Of Cigarettes",
+		weight = 0,
+		stack = false,
+		consume = 0.05,
+		decay = true,
+		description = "Pack Of Cigarettes",
+		server = {
+			export = 'js5m_smoking.UseCigarettePack'
+		},
+		client = {
+			anim = { dict = 'move_p_m_two_idles@generic', clip = 'fidget_sniff_fingers' },
+			-- prop = { model = `ng_proc_cigarette01a`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+			-- disable = { move = true},
+			usetime = 1000,
+		}
+	},
+	['tradingcard_pack'] = {
+		label = 'Trading Card Pack',
+		weight = 500,
+		consume = 0,
+		-- server = {
+		-- 	export = 'js5m_tradingcards.UseTradingCardPack',
+		-- },
+		client = {
+			-- anim = { dict = 'anim@mp_snowball', clip = 'pickup_snowball' },
+			-- prop = { model = `ng_proc_cigarette01a`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+			disable = { combat = true},
+			-- usetime = 5000,
+			export = 'js5m_tradingcards.useTradingCardPack'
+		}
+	},
+	['tradingcard'] = {
+		label = 'Trading Card',
+		consume = 0,
+		weight = 100,
+		client = {
+			disable = { combat = true},
+			export = 'js5m_tradingcards.useTradingCard'
+		},
 	},
 }

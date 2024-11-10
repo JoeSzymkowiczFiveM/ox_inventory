@@ -917,8 +917,8 @@ local function updateInventory(data, weight)
 
 			if currentWeapon?.slot == item?.slot then
                 if item.metadata then
-				    currentWeapon.metadata = item.metadata
-				    TriggerEvent('ox_inventory:currentWeapon', currentWeapon)
+					currentWeapon.metadata = item.metadata
+					TriggerEvent('ox_inventory:currentWeapon', currentWeapon)
                 else
                     currentWeapon = Weapon.Disarm(currentWeapon, true)
                 end
