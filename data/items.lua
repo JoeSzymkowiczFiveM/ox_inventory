@@ -389,6 +389,19 @@ return {
 		label = 'Plant Nutrition',
 		weight = 3000,
 	},
+	['potato_seed'] = {
+		label = 'Potato Seed',
+		weight = 100,
+		consume = 0,
+		client = {
+			export = 'js5m_planting.useSeed',
+		},
+	},
+	['potato'] = {
+		label = 'Potato',
+		weight = 2000,
+		consume = 0,
+	},
 	['radio'] = {
 		label = 'Radio',
 		weight = 1000,
@@ -621,6 +634,18 @@ return {
 	['animal_pelt'] = {
 		label = 'Animal Pelt',
 		weight = 1000,
+		consume = 0,
+		stack = true,
+	},
+	['animal_meat'] = {
+		label = 'Animal Meat',
+		weight = 1000,
+		consume = 0,
+		stack = true,
+	},
+	['beef_patty'] = {
+		label = 'Beef Patty',
+		weight = 500,
 		consume = 0,
 		stack = true,
 	},
@@ -964,6 +989,25 @@ return {
 		client = {
 			disable = { combat = true},
 			export = 'js5m_tradingcards.useTradingCard'
+		},
+	},
+	["torch"] = {
+        label = "Torch",
+        weight = 1,
+        stack = true,
+        close = true,
+        client = {
+            image = 'torch.png',
+            export = 'torch.useTorch'
+        },
+    },
+	['crate1'] = {
+		label = 'Crate',
+		consume = 0,
+		weight = 100,
+		client = {
+			disable = { combat = true},
+			export = 'noego_object.PlaceItemObject'
 		},
 	},
 }
