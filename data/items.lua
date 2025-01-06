@@ -991,23 +991,18 @@ return {
 			export = 'js5m_tradingcards.useTradingCard'
 		},
 	},
-	["torch"] = {
-        label = "Torch",
-        weight = 1,
-        stack = true,
-        close = true,
-        client = {
-            image = 'torch.png',
-            export = 'torch.useTorch'
-        },
-    },
-	['crate1'] = {
-		label = 'Crate',
+	["grill1"] = {
+        label = 'Grill',
+		weight = 1000,
+		stack = false,
 		consume = 0,
-		weight = 100,
 		client = {
-			disable = { combat = true},
-			export = 'noego_object.PlaceItemObject'
+			export = 'js5m_grilling.useGrill',
 		},
-	},
+    },
+	["steak_raw"] = {
+        label = 'Raw Steak',
+		weight = 30,
+		consume = 0,
+    },
 }
