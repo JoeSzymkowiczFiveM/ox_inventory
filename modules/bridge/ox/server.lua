@@ -1,6 +1,7 @@
-if not lib.checkDependency('ox_core', '0.21.3', true) then return end
+-- if not lib.checkDependency('ox_core', '0.21.3', true) then return end
 
-local Ox = require '@ox_core.lib.init' --[[@as OxServer]]
+-- local Ox = require '@ox_core.lib.init' --[[@as OxServer]]
+CreateThread(function()lib.load('@ox_core.imports.server') end)
 
 local Inventory = require 'modules.inventory.server'
 

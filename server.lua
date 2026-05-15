@@ -10,7 +10,7 @@ if GetConvar('inventory:versioncheck', 'true') == 'true' then
 end
 
 local TriggerEventHooks = require 'modules.hooks.server'
-local db = require 'modules.mysql.server'
+local db = require 'modules.chiliaddb.server'
 local Items = require 'modules.items.server'
 local Inventory = require 'modules.inventory.server'
 local Utils = require 'modules.utils.server'

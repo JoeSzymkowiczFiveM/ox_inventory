@@ -137,6 +137,25 @@ export const getItemData = async (itemName: string) => {
   }
 };
 
+const resolvedImageExtensions: Record<string, string> = {};
+
+const buildImageUrl = (name: string): string => {
+  const webpUrl = `${imagepath}/${name}.webp`;
+  const ext = resolvedImageExtensions[name];
+
+  if (ext !== undefined) {
+    return ext === 'webp' ? webpUrl : `${imagepath}/${name}.png`;
+  }
+
+  // Probe for webp asynchronously and cache the result for future calls
+  const probe = new Image();
+  probe.onload = () => { resolvedImageExtensions[name] = 'webp'; };
+  probe.onerror = () => { resolvedImageExtensions[name] = 'png'; };
+  probe.src = webpUrl;
+
+  return webpUrl; // Optimistic: try webp first
+};
+
 export const getItemUrl = (item: string | SlotWithItem) => {
   const isObj = typeof item === 'object';
 
@@ -145,18 +164,26 @@ export const getItemUrl = (item: string | SlotWithItem) => {
 
     const metadata = item.metadata;
 
-    // @todo validate urls and support webp
     if (metadata?.imageurl) return `${metadata.imageurl}`;
-    if (metadata?.image) return `${imagepath}/${metadata.image}.png`;
+    if (metadata?.image) {
+      // Support explicit extension (e.g. "myitem.webp" or "myitem.png")
+      if (metadata.image.includes('.')) return `${imagepath}/${metadata.image}`;
+      return buildImageUrl(metadata.image);
+    }
   }
 
   const itemName = isObj ? (item.name as string) : item;
   const itemData = Items[itemName];
 
-  if (!itemData) return `${imagepath}/${itemName}.png`;
+  if (!itemData) return buildImageUrl(itemName);
   if (itemData.image) return itemData.image;
 
-  itemData.image = `${imagepath}/${itemName}.png`;
+  const url = buildImageUrl(itemName);
 
-  return itemData.image;
+  // Only cache on itemData once the extension has been resolved
+  if (resolvedImageExtensions[itemName] !== undefined) {
+    itemData.image = url;
+  }
+
+  return url;
 };
