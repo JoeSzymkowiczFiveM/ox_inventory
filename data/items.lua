@@ -812,7 +812,7 @@ return {
 	},
 	['backpack'] = {
 		label = 'Backpack',
-		weight = 220,
+		weight = 5000,
 		stack = false,
 		consume = 0,
 		client = {

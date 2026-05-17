@@ -720,7 +720,8 @@ function Inventory.Save(inv)
         end
     end
 
-    local data = next(buffer) and json.encode(buffer) or nil
+    -- local data = next(buffer) and json.encode(buffer) or nil --retain lua table structure to avoid json encoding/decoding on load, and save some performance
+	local data = next(buffer) and buffer or nil
     inv.changed = false
 
     if inv.player then
@@ -2359,7 +2360,8 @@ local function prepareInventorySave(inv, buffer, time)
 
     if not shouldSave then return end
 
-    local data = next(buffer) and json.encode(buffer) or nil
+    -- local data = next(buffer) and json.encode(buffer) or nil --retain lua table structure to avoid json encoding/decoding on load, and save some performance
+	local data = next(buffer) and lib.table.deepclone(buffer) or nil
     inv.changed = false
     table.wipe(buffer)
 
