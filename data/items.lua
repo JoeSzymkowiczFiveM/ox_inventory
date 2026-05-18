@@ -810,7 +810,16 @@ return {
 			export = 'js5m_lootcrate_ox.UseLootCrate',
 		},
 	},
-	['backpack'] = {
+	['backpack_b_01'] = {
+		label = 'Backpack',
+		weight = 5000,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'js5m_backpack.openBackpack'
+		}
+	},
+	['backpack_b_02'] = {
 		label = 'Backpack',
 		weight = 5000,
 		stack = false,
