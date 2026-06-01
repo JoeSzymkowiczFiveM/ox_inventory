@@ -223,7 +223,7 @@ end
 local success, msg = lib.checkDependency('chiliaddb', '0.3.1')
 
 if success then
-    success, msg = lib.checkDependency('ox_lib', '3.36.0')
+    success, msg = lib.checkDependency('ox_lib', '3.36.4')
 end
 
 if not success then
