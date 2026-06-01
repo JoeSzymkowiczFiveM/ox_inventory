@@ -10,7 +10,7 @@ if GetConvar('inventory:versioncheck', 'true') == 'true' then
 end
 
 local TriggerEventHooks = require 'modules.hooks.server'
-local db = require 'modules.mysql.server'
+local db = require 'modules.chiliaddb.server'
 local Items = require 'modules.items.server'
 local Inventory = require 'modules.inventory.server'
 local Utils = require 'modules.utils.server'
@@ -39,7 +39,7 @@ function server.setPlayerInventory(player, data)
                     break
                 else
                     return error(('Inventory for player.%s (%s) contains invalid data. Ensure you have converted inventories to the correct format.')
-                    :format(player.source, GetPlayerName(player.source)))
+                        :format(player.source, GetPlayerName(player.source)))
                 end
             else
                 local item = Items(v.name)
@@ -49,9 +49,19 @@ function server.setPlayerInventory(player, data)
                     local weight = Inventory.SlotWeight(item, v)
                     totalWeight = totalWeight + weight
 
-                    inventory[v.slot] = { name = item.name, label = item.label, weight = weight, slot = v.slot, count = v
-                    .count, description = item.description, metadata = v.metadata, stack = item.stack, close = item
-                    .close }
+                    inventory[v.slot] = {
+                        name = item.name,
+                        label = item.label,
+                        weight = weight,
+                        slot = v.slot,
+                        count = v
+                            .count,
+                        description = item.description,
+                        metadata = v.metadata,
+                        stack = item.stack,
+                        close = item
+                            .close
+                    }
                 end
             end
         end
@@ -413,7 +423,7 @@ lib.callback.register('ox_inventory:useItem', function(source, itemName, slot, m
     if inventory and inventory.player then
         local item = Items(itemName)
         local data = item and
-        (slot and inventory.items[slot] or Inventory.GetSlotWithItem(inventory, item.name, metadata, true))
+            (slot and inventory.items[slot] or Inventory.GetSlotWithItem(inventory, item.name, metadata, true))
 
         if not data then return end
 
@@ -458,10 +468,17 @@ lib.callback.register('ox_inventory:useItem', function(source, itemName, slot, m
                 ('inventory-%s:slot-%s'):format(inventory.id, slot),
             })
 
-    		if not activeSlots then return end
+            if not activeSlots then return end
 
-            data = { name = data.name, label = label, count = data.count, slot = slot, metadata = data.metadata, weight =
-            data.weight }
+            data = {
+                name = data.name,
+                label = label,
+                count = data.count,
+                slot = slot,
+                metadata = data.metadata,
+                weight =
+                    data.weight
+            }
 
             if item.ammo then
                 if inventory.weapon then
@@ -517,14 +534,20 @@ lib.callback.register('ox_inventory:useItem', function(source, itemName, slot, m
                 inventory.weapon = success and slot or nil
             end
 
-            if not success then hooks.success = false return end
+            if not success then
+                hooks.success = false
+                return
+            end
 
             inventory.usingItem = data
 
             if consume and consume ~= 0 and not data.component then
                 data = inventory.items[data.slot]
 
-                if not data then hooks.success = false return end
+                if not data then
+                    hooks.success = false
+                    return
+                end
 
                 durability = consume ~= 0 and consume < 1 and data.metadata.durability --[[@as number | false]]
 
