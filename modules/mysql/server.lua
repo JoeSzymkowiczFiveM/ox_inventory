@@ -27,6 +27,15 @@ local function parseIntervalToRetention(intervalStr)
     return retention
 end
 
+local function normalizeInventoryData(data)
+    if type(data) == 'string' then
+        local ok, decoded = pcall(json.decode, data)
+        return ok and decoded or data
+    end
+
+    return data
+end
+
 -- Collections:
 --   ox_player_inventories  { owner, inventory }
 --   ox_stash_inventories   { owner, name, data }
@@ -50,14 +59,26 @@ db = {}
 function db.loadPlayer(identifier)
     local doc = ChiliadDB.findOne({ collection = 'ox_player_inventories', query = { owner = identifier } })
     if not doc or not doc.inventory then return nil end
-    return json.decode(doc.inventory)
+
+    local inventory = normalizeInventoryData(doc.inventory)
+
+    if type(doc.inventory) == 'string' and type(inventory) == 'table' then
+        ChiliadDB.update({
+            collection = 'ox_player_inventories',
+            query = { owner = identifier },
+            update = { owner = identifier, inventory = inventory },
+            options = { upsert = true },
+        })
+    end
+
+    return inventory
 end
 
 function db.savePlayer(owner, inventory)
     return ChiliadDB.update({
         collection = 'ox_player_inventories',
         query = { owner = owner },
-        update = { owner = owner, inventory = inventory },
+        update = { owner = owner, inventory = normalizeInventoryData(inventory) },
         options = { upsert = true },
     })
 end
@@ -67,42 +88,42 @@ function db.saveStash(owner, dbId, inventory)
     return ChiliadDB.update({
         collection = 'ox_stash_inventories',
         query = { owner = ownerStr, name = tostring(dbId) },
-        update = { owner = ownerStr, name = tostring(dbId), data = inventory },
+        update = { owner = ownerStr, name = tostring(dbId), data = normalizeInventoryData(inventory) },
         options = { upsert = true },
     })
 end
 
 function db.loadStash(owner, name)
     local doc = ChiliadDB.findOne({ collection = 'ox_stash_inventories', query = { owner = owner, name = name } })
-    return doc and doc.data
+    return doc and normalizeInventoryData(doc.data)
 end
 
 function db.saveGlovebox(id, inventory)
     return ChiliadDB.update({
         collection = 'ox_vehicle_inventories',
         query = { vehicleId = tostring(id) },
-        update = { vehicleId = tostring(id), glovebox = inventory },
+        update = { vehicleId = tostring(id), glovebox = normalizeInventoryData(inventory) },
         options = { upsert = true },
     })
 end
 
 function db.loadGlovebox(id)
     local doc = ChiliadDB.findOne({ collection = 'ox_vehicle_inventories', query = { vehicleId = tostring(id) } })
-    return doc and { glovebox = doc.glovebox }
+    return doc and { glovebox = normalizeInventoryData(doc.glovebox) }
 end
 
 function db.saveTrunk(id, inventory)
     return ChiliadDB.update({
         collection = 'ox_vehicle_inventories',
         query = { vehicleId = tostring(id) },
-        update = { vehicleId = tostring(id), trunk = inventory },
+        update = { vehicleId = tostring(id), trunk = normalizeInventoryData(inventory) },
         options = { upsert = true },
     })
 end
 
 function db.loadTrunk(id)
     local doc = ChiliadDB.findOne({ collection = 'ox_vehicle_inventories', query = { vehicleId = tostring(id) } })
-    return doc and { trunk = doc.trunk }
+    return doc and { trunk = normalizeInventoryData(doc.trunk) }
 end
 
 local function safeQuery(fn, ...)
@@ -134,7 +155,7 @@ function db.saveInventories(players, trunks, gloveboxes, stashes, total)
                 local resp = safeQuery(ChiliadDB.update, {
                     collection = 'ox_player_inventories',
                     query = { owner = entry[2] },
-                    update = { owner = entry[2], inventory = entry[1] },
+                    update = { owner = entry[2], inventory = normalizeInventoryData(entry[1]) },
                     options = { upsert = true },
                 })
                 if resp then saved += 1 end
@@ -153,7 +174,7 @@ function db.saveInventories(players, trunks, gloveboxes, stashes, total)
                 local resp = safeQuery(ChiliadDB.update, {
                     collection = 'ox_vehicle_inventories',
                     query = { vehicleId = tostring(entry[2]) },
-                    update = { vehicleId = tostring(entry[2]), trunk = entry[1] },
+                    update = { vehicleId = tostring(entry[2]), trunk = normalizeInventoryData(entry[1]) },
                     options = { upsert = true },
                 })
                 if resp then saved += 1 end
@@ -172,7 +193,7 @@ function db.saveInventories(players, trunks, gloveboxes, stashes, total)
                 local resp = safeQuery(ChiliadDB.update, {
                     collection = 'ox_vehicle_inventories',
                     query = { vehicleId = tostring(entry[2]) },
-                    update = { vehicleId = tostring(entry[2]), glovebox = entry[1] },
+                    update = { vehicleId = tostring(entry[2]), glovebox = normalizeInventoryData(entry[1]) },
                     options = { upsert = true },
                 })
                 if resp then saved += 1 end
@@ -194,7 +215,7 @@ function db.saveInventories(players, trunks, gloveboxes, stashes, total)
                     local resp = safeQuery(ChiliadDB.update, {
                         collection = 'ox_stash_inventories',
                         query = { owner = stashes[i + 1], name = tostring(stashes[i + 2]) },
-                        update = { owner = stashes[i + 1], name = tostring(stashes[i + 2]), data = stashes[i] },
+                        update = { owner = stashes[i + 1], name = tostring(stashes[i + 2]), data = normalizeInventoryData(stashes[i]) },
                         options = { upsert = true },
                     })
                     if resp then saved += 1 end
@@ -205,7 +226,7 @@ function db.saveInventories(players, trunks, gloveboxes, stashes, total)
                     local resp = safeQuery(ChiliadDB.update, {
                         collection = 'ox_stash_inventories',
                         query = { owner = entry[2], name = tostring(entry[3]) },
-                        update = { owner = entry[2], name = tostring(entry[3]), data = entry[1] },
+                        update = { owner = entry[2], name = tostring(entry[3]), data = normalizeInventoryData(entry[1]) },
                         options = { upsert = true },
                     })
                     if resp then saved += 1 end
