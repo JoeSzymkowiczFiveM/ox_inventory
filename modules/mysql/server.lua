@@ -1,180 +1,115 @@
 if not lib then return end
 
-local Query = {
-    SELECT_STASH = 'SELECT data FROM ox_inventory WHERE owner = ? AND name = ?',
-    UPDATE_STASH = 'UPDATE ox_inventory SET data = ? WHERE owner = ? AND name = ?',
-    UPSERT_STASH =
-    'INSERT INTO ox_inventory (data, owner, name) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)',
-    INSERT_STASH = 'INSERT INTO ox_inventory (owner, name) VALUES (?, ?)',
-    SELECT_GLOVEBOX = 'SELECT plate, glovebox FROM `{vehicle_table}` WHERE `{vehicle_column}` = ?',
-    SELECT_TRUNK = 'SELECT plate, trunk FROM `{vehicle_table}` WHERE `{vehicle_column}` = ?',
-    SELECT_PLAYER = 'SELECT inventory FROM `{user_table}` WHERE `{user_column}` = ?',
-    UPDATE_TRUNK = 'UPDATE `{vehicle_table}` SET trunk = ? WHERE `{vehicle_column}` = ?',
-    UPDATE_GLOVEBOX = 'UPDATE `{vehicle_table}` SET glovebox = ? WHERE `{vehicle_column}` = ?',
-    UPDATE_PLAYER = 'UPDATE `{user_table}` SET inventory = ? WHERE `{user_column}` = ?',
-}
-
-Citizen.CreateThreadNow(function()
-    local playerTable, playerColumn, vehicleTable, vehicleColumn
-
-    if shared.framework == 'ox' then
-        playerTable = 'character_inventory'
-        playerColumn = 'charid'
-        vehicleTable = 'vehicles'
-        vehicleColumn = 'id'
-    elseif shared.framework == 'esx' then
-        playerTable = 'users'
-        playerColumn = 'identifier'
-        vehicleTable = 'owned_vehicles'
-        vehicleColumn = 'plate'
-    elseif shared.framework == 'nd' then
-        playerTable = 'nd_characters'
-        playerColumn = 'charid'
-        vehicleTable = 'nd_vehicles'
-        vehicleColumn = 'id'
-    elseif shared.framework == 'qbx' then
-        playerTable = 'players'
-        playerColumn = 'citizenid'
-        vehicleTable = 'player_vehicles'
-        vehicleColumn = 'id'
+-- Parses a MySQL-style interval string (e.g. "6 MONTH") into a ChiliadDB retention table.
+local function parseIntervalToRetention(intervalStr)
+    local amount, unit = intervalStr:match('^(%d+)%s+(%a+)$')
+    if not amount or not unit then return nil end
+    amount = tonumber(amount)
+    unit = unit:upper()
+    local retention = {}
+    if unit == 'SECOND' or unit == 'SECONDS' then
+        retention.seconds = amount
+    elseif unit == 'MINUTE' or unit == 'MINUTES' then
+        retention.minutes = amount
+    elseif unit == 'HOUR' or unit == 'HOURS' then
+        retention.hours = amount
+    elseif unit == 'DAY' or unit == 'DAYS' then
+        retention.days = amount
+    elseif unit == 'WEEK' or unit == 'WEEKS' then
+        retention.days = amount * 7
+    elseif unit == 'MONTH' or unit == 'MONTHS' then
+        retention.months = amount
+    elseif unit == 'YEAR' or unit == 'YEARS' then
+        retention.months = amount * 12
     else
-        return
+        return nil
     end
+    return retention
+end
 
-    for k, v in pairs(Query) do
-        Query[k] = v:gsub('{user_table}', playerTable):gsub('{user_column}', playerColumn):gsub('{vehicle_table}',
-            vehicleTable):gsub('{vehicle_column}', vehicleColumn)
-    end
-
-    Wait(0)
-
-    local success, result = pcall(MySQL.scalar.await, 'SELECT 1 FROM ox_inventory')
-
-    if not success then
-        MySQL.query([[CREATE TABLE `ox_inventory` (
-			`owner` varchar(60) DEFAULT NULL,
-			`name` varchar(100) NOT NULL,
-			`data` longtext DEFAULT NULL,
-			`lastupdated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-			UNIQUE KEY `owner` (`owner`,`name`)
-		)]])
-    else
-        -- Shouldn't be needed anymore; was used for some data conversion for v2.5.0 (back in March 2022)
-        -- result = MySQL.query.await("SELECT owner, name FROM ox_inventory WHERE NOT owner = ''")
-
-        -- if result and next(result) then
-        -- 	local parameters = {}
-        -- 	local count = 0
-
-        -- 	for i = 1, #result do
-        -- 		local data = result[i]
-        -- 		local snip = data.name:sub(-#data.owner, #data.name)
-
-        -- 		if data.owner == snip then
-        -- 			local name = data.name:sub(0, #data.name - #snip)
-
-        -- 			count += 1
-        -- 			parameters[count] = { query = 'UPDATE ox_inventory SET `name` = ? WHERE `owner` = ? AND `name` = ?', values = { name, data.owner, data.name } }
-        -- 		end
-        -- 	end
-
-        -- 	if #parameters > 0 then
-        -- 		MySQL.transaction(parameters)
-        -- 	end
-        -- end
-    end
-
-    result = MySQL.query.await(('SHOW COLUMNS FROM `%s`'):format(vehicleTable))
-
-    if result then
-        local glovebox, trunk
-
-        for i = 1, #result do
-            local column = result[i]
-            if column.Field == 'glovebox' then
-                glovebox = true
-            elseif column.Field == 'trunk' then
-                trunk = true
-            end
-        end
-
-        if not glovebox then
-            MySQL.query(('ALTER TABLE `%s` ADD COLUMN `glovebox` LONGTEXT NULL'):format(vehicleTable))
-        end
-
-        if not trunk then
-            MySQL.query(('ALTER TABLE `%s` ADD COLUMN `trunk` LONGTEXT NULL'):format(vehicleTable))
-        end
-    end
-
-    success, result = pcall(MySQL.scalar.await, ('SELECT inventory FROM `%s`'):format(playerTable))
-
-    if not success then
-        MySQL.query(('ALTER TABLE `%s` ADD COLUMN `inventory` LONGTEXT NULL'):format(playerTable))
-    end
+-- Collections:
+--   ox_player_inventories  { owner, inventory }
+--   ox_stash_inventories   { owner, name, data }
+--   ox_vehicle_inventories { vehicleId, glovebox, trunk }
+ChiliadDB.ready(function()
+    ChiliadDB.ensureIndex({ collection = 'ox_player_inventories', fields = { 'owner' }, unique = true })
+    ChiliadDB.ensureIndex({ collection = 'ox_stash_inventories', fields = { 'owner', 'name' } })
+    ChiliadDB.ensureIndex({ collection = 'ox_vehicle_inventories', fields = { 'vehicleId' }, unique = true })
 
     local clearStashes = GetConvar('inventory:clearstashes', '6 MONTH')
-
     if clearStashes ~= '' then
-        pcall(MySQL.query.await, ('DELETE FROM ox_inventory WHERE lastupdated < (NOW() - INTERVAL %s)'):format(clearStashes))
+        local retention = parseIntervalToRetention(clearStashes)
+        if retention then
+            ChiliadDB.setCollectionRetention({ collection = 'ox_stash_inventories', retention = retention })
+        end
     end
 end)
 
 db = {}
 
 function db.loadPlayer(identifier)
-    local inventory = MySQL.prepare.await(Query.SELECT_PLAYER, { identifier }) --[[@as string?]]
-    return inventory and json.decode(inventory)
+    local doc = ChiliadDB.findOne({ collection = 'ox_player_inventories', query = { owner = identifier } })
+    if not doc or not doc.inventory then return nil end
+    return json.decode(doc.inventory)
 end
 
 function db.savePlayer(owner, inventory)
-    return MySQL.prepare(Query.UPDATE_PLAYER, { inventory, owner })
+    return ChiliadDB.update({
+        collection = 'ox_player_inventories',
+        query = { owner = owner },
+        update = { owner = owner, inventory = inventory },
+        options = { upsert = true },
+    })
 end
 
 function db.saveStash(owner, dbId, inventory)
-    return MySQL.prepare(Query.UPSERT_STASH, { inventory, owner and tostring(owner) or '', dbId })
+    local ownerStr = owner and tostring(owner) or ''
+    return ChiliadDB.update({
+        collection = 'ox_stash_inventories',
+        query = { owner = ownerStr, name = tostring(dbId) },
+        update = { owner = ownerStr, name = tostring(dbId), data = inventory },
+        options = { upsert = true },
+    })
 end
 
 function db.loadStash(owner, name)
-    return MySQL.prepare.await(Query.SELECT_STASH, { owner and tostring(owner) or '', name })
+    local doc = ChiliadDB.findOne({ collection = 'ox_stash_inventories', query = { owner = owner, name = name } })
+    return doc and doc.data
 end
 
 function db.saveGlovebox(id, inventory)
-    return MySQL.prepare(Query.UPDATE_GLOVEBOX, { inventory, id })
+    return ChiliadDB.update({
+        collection = 'ox_vehicle_inventories',
+        query = { vehicleId = tostring(id) },
+        update = { vehicleId = tostring(id), glovebox = inventory },
+        options = { upsert = true },
+    })
 end
 
 function db.loadGlovebox(id)
-    return MySQL.prepare.await(Query.SELECT_GLOVEBOX, { id })
+    local doc = ChiliadDB.findOne({ collection = 'ox_vehicle_inventories', query = { vehicleId = tostring(id) } })
+    return doc and { glovebox = doc.glovebox }
 end
 
 function db.saveTrunk(id, inventory)
-    return MySQL.prepare(Query.UPDATE_TRUNK, { inventory, id })
+    return ChiliadDB.update({
+        collection = 'ox_vehicle_inventories',
+        query = { vehicleId = tostring(id) },
+        update = { vehicleId = tostring(id), trunk = inventory },
+        options = { upsert = true },
+    })
 end
 
 function db.loadTrunk(id)
-    return MySQL.prepare.await(Query.SELECT_TRUNK, { id })
+    local doc = ChiliadDB.findOne({ collection = 'ox_vehicle_inventories', query = { vehicleId = tostring(id) } })
+    return doc and { trunk = doc.trunk }
 end
 
----@param rows number | MySQLQuery | MySQLQuery[]
-local function countRows(rows)
-    if type(rows) == 'number' then return rows end
-
-    local n = 0
-
-    for i = 1, #rows do
-        if rows[i] == 1 then n += 1 end
-    end
-
-    return n
-end
-
-local function safeQuery(...)
-    local ok, resp = pcall(...)
-
+local function safeQuery(fn, ...)
+    local ok, resp = pcall(fn, ...)
     if not ok then
         return warn(resp)
     end
-
     return resp
 end
 
@@ -192,86 +127,93 @@ function db.saveInventories(players, trunks, gloveboxes, stashes, total)
 
     if total[1] > 0 then
         pending += 1
-
         Citizen.CreateThreadNow(function()
-            local resp = safeQuery(MySQL.prepare.await, Query.UPDATE_PLAYER, players)
-            pending -= 1
-
-            if resp then
-                shared.info(saveStr:format(countRows(resp), total[1], 'players', (os.nanotime() - start) / 1e6))
+            local saved = 0
+            for i = 1, #players do
+                local entry = players[i]
+                local resp = safeQuery(ChiliadDB.update, {
+                    collection = 'ox_player_inventories',
+                    query = { owner = entry[2] },
+                    update = { owner = entry[2], inventory = entry[1] },
+                    options = { upsert = true },
+                })
+                if resp then saved += 1 end
             end
+            pending -= 1
+            shared.info(saveStr:format(saved, total[1], 'players', (os.nanotime() - start) / 1e6))
         end)
     end
 
     if total[2] > 0 then
         pending += 1
-
         Citizen.CreateThreadNow(function()
-            local resp = safeQuery(MySQL.prepare.await, Query.UPDATE_TRUNK, trunks)
-            pending -= 1
-
-            if resp then
-                shared.info(saveStr:format(countRows(resp), total[2], 'trunks', (os.nanotime() - start) / 1e6))
+            local saved = 0
+            for i = 1, #trunks do
+                local entry = trunks[i]
+                local resp = safeQuery(ChiliadDB.update, {
+                    collection = 'ox_vehicle_inventories',
+                    query = { vehicleId = tostring(entry[2]) },
+                    update = { vehicleId = tostring(entry[2]), trunk = entry[1] },
+                    options = { upsert = true },
+                })
+                if resp then saved += 1 end
             end
+            pending -= 1
+            shared.info(saveStr:format(saved, total[2], 'trunks', (os.nanotime() - start) / 1e6))
         end)
     end
 
     if total[3] > 0 then
         pending += 1
-
         Citizen.CreateThreadNow(function()
-            local resp = safeQuery(MySQL.prepare.await, Query.UPDATE_GLOVEBOX, gloveboxes)
-            pending -= 1
-
-            if resp then
-                shared.info(saveStr:format(countRows(resp), total[3], 'gloveboxes', (os.nanotime() - start) / 1e6))
+            local saved = 0
+            for i = 1, #gloveboxes do
+                local entry = gloveboxes[i]
+                local resp = safeQuery(ChiliadDB.update, {
+                    collection = 'ox_vehicle_inventories',
+                    query = { vehicleId = tostring(entry[2]) },
+                    update = { vehicleId = tostring(entry[2]), glovebox = entry[1] },
+                    options = { upsert = true },
+                })
+                if resp then saved += 1 end
             end
+            pending -= 1
+            shared.info(saveStr:format(saved, total[3], 'gloveboxes', (os.nanotime() - start) / 1e6))
         end)
     end
 
     if total[4] > 0 then
         pending += 1
-
-        if server.bulkstashsave then
-            total[4] /= 3
-
-            Citizen.CreateThreadNow(function()
-                local query = Query.UPSERT_STASH:gsub('%(%?, %?, %?%)', string.rep('(?, ?, ?)', total[4], ', '))
-                local resp = safeQuery(MySQL.query.await, query, stashes)
-                pending -= 1
-
-                if resp then
-                    local affectedRows = resp.affectedRows
-
-                    if total[4] == 1 then
-                        if affectedRows == 2 then affectedRows = 1 end
-                    else
-                        affectedRows -= tonumber(resp.info:match('Duplicates: (%d+)'), 10) or 0
-                    end
-
-                    shared.info(saveStr:format(affectedRows, total[4], 'stashes', (os.nanotime() - start) / 1e6))
+        -- When bulkstashsave, the stashes array is flat: [data, owner, name, data, owner, name, ...]
+        -- and total[4] = 3 * stash_count. Otherwise, stashes is an array of {data, owner, name} tables.
+        local stashCount = server.bulkstashsave and (total[4] / 3) or total[4]
+        Citizen.CreateThreadNow(function()
+            local saved = 0
+            if server.bulkstashsave then
+                for i = 1, #stashes, 3 do
+                    local resp = safeQuery(ChiliadDB.update, {
+                        collection = 'ox_stash_inventories',
+                        query = { owner = stashes[i + 1], name = tostring(stashes[i + 2]) },
+                        update = { owner = stashes[i + 1], name = tostring(stashes[i + 2]), data = stashes[i] },
+                        options = { upsert = true },
+                    })
+                    if resp then saved += 1 end
                 end
-            end)
-        else
-            Citizen.CreateThreadNow(function()
-                local resp = safeQuery(MySQL.rawExecute.await, Query.UPSERT_STASH, stashes)
-                pending -= 1
-
-                if resp then
-                    local affectedRows = 0
-
-                    if table.type(resp) == 'hash' then
-                        if resp.affectedRows > 0 then affectedRows = 1 end
-                    else
-                        for i = 1, #resp do
-                            if resp[i].affectedRows > 0 then affectedRows += 1 end
-                        end
-                    end
-
-                    shared.info(saveStr:format(affectedRows, total[4], 'stashes', (os.nanotime() - start) / 1e6))
+            else
+                for i = 1, #stashes do
+                    local entry = stashes[i]
+                    local resp = safeQuery(ChiliadDB.update, {
+                        collection = 'ox_stash_inventories',
+                        query = { owner = entry[2], name = tostring(entry[3]) },
+                        update = { owner = entry[2], name = tostring(entry[3]), data = entry[1] },
+                        options = { upsert = true },
+                    })
+                    if resp then saved += 1 end
                 end
-            end)
-        end
+            end
+            pending -= 1
+            shared.info(saveStr:format(saved, stashCount, 'stashes', (os.nanotime() - start) / 1e6))
+        end)
     end
 
     repeat Wait(0) until pending == 0

@@ -220,7 +220,7 @@ if not lib then
     return spamError('ox_inventory requires the ox_lib resource, refer to the documentation.')
 end
 
-local success, msg = lib.checkDependency('oxmysql', '2.7.3')
+local success, msg = lib.checkDependency('chiliaddb', '0.3.1')
 
 if success then
     success, msg = lib.checkDependency('ox_lib', '3.36.0')
