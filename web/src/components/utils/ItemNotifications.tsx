@@ -4,7 +4,7 @@ import { TransitionGroup } from 'react-transition-group';
 import useNuiEvent from '../../hooks/useNuiEvent';
 import useQueue from '../../hooks/useQueue';
 import { Locale } from '../../store/locale';
-import { getItemUrl } from '../../helpers';
+import useItemUrl from '../../hooks/useItemUrl';
 import { SlotWithItem } from '../../typings';
 import { Items } from '../../store/items';
 import Fade from './transitions/Fade';
@@ -27,12 +27,13 @@ export const useItemNotifications = () => {
 const ItemNotification = React.forwardRef(
   (props: { item: ItemNotificationProps; style?: React.CSSProperties }, ref: React.ForwardedRef<HTMLDivElement>) => {
     const slotItem = props.item.item;
+    const itemImageUrl = useItemUrl(slotItem);
 
     return (
       <div
         className="item-notification-item-box"
         style={{
-          backgroundImage: `url(${getItemUrl(slotItem) || 'none'}`,
+          backgroundImage: itemImageUrl ? `url(${itemImageUrl})` : 'none',
           ...props.style,
         }}
         ref={ref}
@@ -70,7 +71,10 @@ export const ItemNotificationsProvider = ({ children }: { children: React.ReactN
   };
 
   useNuiEvent<[item: SlotWithItem, text: string, count?: number]>('itemNotify', ([item, text, count]) => {
-    add({ item: item, text: count ? `${Locale[text]} ${count}x` : `${Locale[text]}` });
+    add({
+      item: item,
+      text: count ? `${Locale[text]} ${count}x` : `${Locale[text]}`,
+    });
   });
 
   return (

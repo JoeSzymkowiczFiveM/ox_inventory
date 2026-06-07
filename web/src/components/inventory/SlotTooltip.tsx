@@ -4,13 +4,17 @@ import { Items } from '../../store/items';
 import { Locale } from '../../store/locale';
 import { useAppSelector } from '../../store';
 import ClockIcon from '../utils/icons/ClockIcon';
-import { getItemUrl } from '../../helpers';
+import { getFallbackItemUrl, getItemUrl } from '../../helpers';
 import Divider from '../utils/Divider';
 import Markdown from '../utils/Markdown';
 
 const SlotTooltip: React.ForwardRefRenderFunction<
   HTMLDivElement,
-  { item: SlotWithItem; inventoryType: Inventory['type']; style: React.CSSProperties }
+  {
+    item: SlotWithItem;
+    inventoryType: Inventory['type'];
+    style: React.CSSProperties;
+  }
 > = ({ item, inventoryType, style }, ref) => {
   const additionalMetadata = useAppSelector((state) => state.inventory.additionalMetadata);
   const itemData = useMemo(() => Items[item.name], [item]);
@@ -101,7 +105,14 @@ const SlotTooltip: React.ForwardRefRenderFunction<
                   const [item, count] = [ingredient[0], ingredient[1]];
                   return (
                     <div className="tooltip-ingredient" key={`ingredient-${item}`}>
-                      <img src={item ? getItemUrl(item) : 'none'} alt="item-image" />
+                      <img
+                        src={item ? getItemUrl(item) : 'none'}
+                        alt="item-image"
+                        onError={(event) => {
+                          const fallbackUrl = getFallbackItemUrl(event.currentTarget.src);
+                          if (fallbackUrl) event.currentTarget.src = fallbackUrl;
+                        }}
+                      />
                       <p>
                         {count >= 1
                           ? `${count}x ${Items[item]?.label || item}`

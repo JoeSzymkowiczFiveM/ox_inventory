@@ -137,6 +137,23 @@ export const getItemData = async (itemName: string) => {
   }
 };
 
+const imageExtensionRegex = /\.(png|webp)$/i;
+
+const preferWebp = (url: string) => url.replace(imageExtensionRegex, '.webp');
+
+const getImageUrl = (image: string) => {
+  if (/^[\w]+:\/\//.test(image)) return preferWebp(image);
+
+  const imageName = image.replace(imageExtensionRegex, '');
+  return `${imagepath}/${imageName}.webp`;
+};
+
+export const getFallbackItemUrl = (url?: string) => {
+  if (!url || !url.match(/\.webp$/i)) return;
+
+  return url.replace(/\.webp$/i, '.png');
+};
+
 export const getItemUrl = (item: string | SlotWithItem) => {
   const isObj = typeof item === 'object';
 
@@ -145,18 +162,17 @@ export const getItemUrl = (item: string | SlotWithItem) => {
 
     const metadata = item.metadata;
 
-    // @todo validate urls and support webp
     if (metadata?.imageurl) return `${metadata.imageurl}`;
-    if (metadata?.image) return `${imagepath}/${metadata.image}.png`;
+    if (metadata?.image) return getImageUrl(metadata.image);
   }
 
   const itemName = isObj ? (item.name as string) : item;
   const itemData = Items[itemName];
 
-  if (!itemData) return `${imagepath}/${itemName}.png`;
-  if (itemData.image) return itemData.image;
+  if (!itemData) return `${imagepath}/${itemName}.webp`;
+  if (itemData.image) return preferWebp(itemData.image);
 
-  itemData.image = `${imagepath}/${itemName}.png`;
+  itemData.image = `${imagepath}/${itemName}.webp`;
 
   return itemData.image;
 };

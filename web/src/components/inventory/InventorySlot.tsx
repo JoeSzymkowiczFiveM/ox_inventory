@@ -6,7 +6,8 @@ import WeightBar from '../utils/WeightBar';
 import { onDrop } from '../../dnd/onDrop';
 import { onBuy } from '../../dnd/onBuy';
 import { Items } from '../../store/items';
-import { canCraftItem, canPurchaseItem, getItemUrl, isSlotWithItem } from '../../helpers';
+import { canCraftItem, canPurchaseItem, getFallbackItemUrl, isSlotWithItem } from '../../helpers';
+import useItemUrl from '../../hooks/useItemUrl';
 import { onUse } from '../../dnd/onUse';
 import { Locale } from '../../store/locale';
 import { onCraft } from '../../dnd/onCraft';
@@ -30,6 +31,8 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
   const manager = useDragDropManager();
   const dispatch = useAppDispatch();
   const timerRef = useRef<number | null>(null);
+  const itemImageUrl = useItemUrl(isSlotWithItem(item) ? item : undefined);
+  const currencyImageUrl = useItemUrl(isSlotWithItem(item) && item.currency ? item.currency : undefined);
 
   const canDrag = useCallback(() => {
     return canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) && canCraftItem(item, inventoryType);
@@ -49,12 +52,12 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
                 name: item.name,
                 slot: item.slot,
               },
-              image: item?.name && `url(${getItemUrl(item) || 'none'}`,
+              image: itemImageUrl ? `url(${itemImageUrl})` : 'none',
             }
           : null,
       canDrag,
     }),
-    [inventoryType, item]
+    [inventoryType, item, itemImageUrl]
   );
 
   const [{ isOver }, drop] = useDrop<DragSource, void, { isOver: boolean }>(
@@ -67,13 +70,22 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
         dispatch(closeTooltip());
         switch (source.inventory) {
           case InventoryType.SHOP:
-            onBuy(source, { inventory: inventoryType, item: { slot: item.slot } });
+            onBuy(source, {
+              inventory: inventoryType,
+              item: { slot: item.slot },
+            });
             break;
           case InventoryType.CRAFTING:
-            onCraft(source, { inventory: inventoryType, item: { slot: item.slot } });
+            onCraft(source, {
+              inventory: inventoryType,
+              item: { slot: item.slot },
+            });
             break;
           default:
-            onDrop(source, { inventory: inventoryType, item: { slot: item.slot } });
+            onDrop(source, {
+              inventory: inventoryType,
+              item: { slot: item.slot },
+            });
             break;
         }
       },
@@ -130,11 +142,14 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
       className="inventory-slot"
       style={{
         filter:
-          !canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) || !canCraftItem(item, inventoryType)
+          !canPurchaseItem(item, {
+            type: inventoryType,
+            groups: inventoryGroups,
+          }) || !canCraftItem(item, inventoryType)
             ? 'brightness(80%) grayscale(100%)'
             : undefined,
         opacity: isDragging ? 0.4 : 1.0,
-        backgroundImage: `url(${item?.name ? getItemUrl(item as SlotWithItem) : 'none'}`,
+        backgroundImage: itemImageUrl ? `url(${itemImageUrl})` : 'none',
         border: isOver ? '1px dashed rgba(255,255,255,0.4)' : '',
       }}
     >
@@ -184,8 +199,12 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
                 {item?.currency !== 'money' && item.currency !== 'black_money' && item.price > 0 && item.currency ? (
                   <div className="item-slot-currency-wrapper">
                     <img
-                      src={item.currency ? getItemUrl(item.currency) : 'none'}
+                      src={currencyImageUrl || 'none'}
                       alt="item-image"
+                      onError={(event) => {
+                        const fallbackUrl = getFallbackItemUrl(event.currentTarget.src);
+                        if (fallbackUrl) event.currentTarget.src = fallbackUrl;
+                      }}
                       style={{
                         imageRendering: '-webkit-optimize-contrast',
                         height: 'auto',
@@ -201,7 +220,9 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
                     {item.price > 0 && (
                       <div
                         className="item-slot-price-wrapper"
-                        style={{ color: item.currency === 'money' || !item.currency ? '#2ECC71' : '#E74C3C' }}
+                        style={{
+                          color: item.currency === 'money' || !item.currency ? '#2ECC71' : '#E74C3C',
+                        }}
                       >
                         <p>
                           {Locale.$ || '$'}
