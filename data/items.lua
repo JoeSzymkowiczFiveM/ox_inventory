@@ -368,15 +368,15 @@ return {
         client = {
             export = 'js5m_radio.useRadio',
             add = function(total)
-            if total > 0 then
-                pcall(function() return exports.js5m_radio:pickupRadio() end)
+                if total > 0 then
+                    pcall(function() return exports.js5m_radio:pickupRadio() end)
                 end
-                end,
-                remove = function(total)
+            end,
+            remove = function(total)
                 if total < 1 then
                     pcall(function() return exports.js5m_radio:dropRadio() end)
-                    end
-                    end
+                end
+            end
         },
     },
     ['phone'] = {
@@ -925,7 +925,41 @@ return {
         decay = true,
         description = "Pack Of Cigarettes",
         server = {
-            export = 'js5m_smoking.UseCigarettePack'
+            export = 'js5m_smoking.UseSmokes'
+        },
+        client = {
+            anim = { dict = 'move_p_m_two_idles@generic', clip = 'fidget_sniff_fingers' },
+            -- prop = { model = `ng_proc_cigarette01a`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+            -- disable = { move = true},
+            usetime = 1000,
+        }
+    },
+    ["joint"] = {
+        label = "Joint",
+        weight = 0,
+        stack = false,
+        consume = 1,
+        decay = true,
+        description = "A joint",
+        server = {
+            export = 'js5m_smoking.UseSmokes'
+        },
+        client = {
+            anim = { dict = 'move_p_m_two_idles@generic', clip = 'fidget_sniff_fingers' },
+            -- prop = { model = `ng_proc_cigarette01a`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+            -- disable = { move = true},
+            usetime = 1000,
+        }
+    },
+    ["cigar"] = {
+        label = "Cigar",
+        weight = 0,
+        stack = false,
+        consume = 1,
+        decay = true,
+        description = "A cigar",
+        server = {
+            export = 'js5m_smoking.UseSmokes'
         },
         client = {
             anim = { dict = 'move_p_m_two_idles@generic', clip = 'fidget_sniff_fingers' },
