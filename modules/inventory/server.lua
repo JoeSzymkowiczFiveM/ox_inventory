@@ -1692,7 +1692,7 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
         return
     end
 
-	if data.count < 1 then return end
+	data.count = math.max(1, math.floor(data.count or 1))
 
 	local playerInventory = Inventory(source)
 
@@ -2214,10 +2214,12 @@ function Inventory.GetSlotForItem(inv, itemName, metadata)
 	for i = 1, inventory.slots do
 		local slotData = items[i]
 
+		if not slotData and not emptySlot then
+			emptySlot = i
+		end
+
 		if item.stack and slotData and slotData.name == item.name and table.matches(slotData.metadata, metadata) then
 			return i
-		elseif not item.stack and not slotData and not emptySlot then
-			emptySlot = i
 		end
 	end
 
@@ -2492,7 +2494,7 @@ local function giveItem(playerId, slot, target, count)
 
 	if not fromInventory or not toInventory then return end
 
-	if type(count) ~= 'number' or count <= 0 then count = 1 end
+	count = math.max(1, math.floor(count or 1))
 
 	if toInventory.player then
 		local data = fromInventory.items[slot]
