@@ -279,6 +279,9 @@ return {
         label = 'OG Kush Buds',
         weight = 200,
         consume = 0,
+        client = {
+            image = 'bzzz_weed_dry_romance_01.png'
+        }
     },
     ['sour_diesel_seed'] = {
         label = 'Sour Diesel Seed',
@@ -627,8 +630,8 @@ return {
         },
         hash = `prop_barrier_work01d`,
     },
-    ['weedrack_a'] = {
-        label = 'Weed Rack',
+    ['bzzz_weed_dry_rack_a'] = {
+        label = 'Weed Rack Small',
         weight = 2000,
         stack = false,
         consume = 0,
@@ -636,8 +639,8 @@ return {
             export = 'js5m_weed.useWeedrack',
         },
     },
-    ['weedrack_b'] = {
-        label = 'Weed Rack',
+    ['bzzz_weed_dry_rack_b'] = {
+        label = 'Weed Rack Medium',
         weight = 2000,
         stack = false,
         consume = 0,
@@ -645,7 +648,7 @@ return {
             export = 'js5m_weed.useWeedrack',
         },
     },
-    ['weedrack_c'] = {
+    ['bzzz_weed_dry_rack_c'] = {
         label = 'Weed Rack',
         weight = 2000,
         stack = false,
@@ -1695,5 +1698,41 @@ return {
         client = {
             export = 'js5m_misc.UseBinoculars',
         },
+    },
+    -- tradingcard_pack
+    ['tradingcard_pack'] = {
+        label = 'Trading Card Pack',
+        weight = 500,
+        consume = 0,
+        -- server = {
+        -- 	export = 'js5m_tradingcards.UseTradingCardPack',
+        -- },
+        client = {
+            -- anim = { dict = 'anim@mp_snowball', clip = 'pickup_snowball' },
+            -- prop = { model = `ng_proc_cigarette01a`, pos = vec3(0.1000, 0.0200, -0.0300), rot = vec3(-90.000, 170.000, 78.999), bone = 57005 },
+            disable = { combat = true },
+            -- usetime = 5000,
+            export = 'js5m_tradingcards.useTradingCardPack'
+        }
+    },
+    ['tradingcard'] = {
+        label = 'Trading Card',
+        consume = 0,
+        weight = 100,
+        client = {
+            disable = { combat = true },
+            export = 'js5m_tradingcards.useTradingCard'
+        },
+    },
+    ['fishing_rod'] = {
+        label = 'Fishing Rod',
+        stack = false,
+        consume = 0,
+        -- server = {
+        --     export = 'js5m_fishing.UseFishingRod'
+        -- }
+    },
+    ['fishing_bait'] = {
+        label = 'Fishing Bait',
     },
 }
