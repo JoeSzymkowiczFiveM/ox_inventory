@@ -45,6 +45,114 @@ end
 
 for id, data in pairs(lib.load('data.crafting') or {}) do createCraftingBench(data.name or id, data) end
 
+---@class ItemsCraft
+---@field name string
+---@field ingredients table<string, number>
+---@field duration? number
+---@field count? number | number[]
+---@field metadata? table
+
+---@class CraftingBench
+---@field items ItemsCraft[]
+---@field groups? table<string, number>
+---@field zones? table[]
+---@field points? vector3[]
+---@field blip? { id: number, colour: number, scale: number }
+
+---@class CraftingBenchRegistrationOptions
+---@field display? boolean Display ox_inventory's standard crafting bench zones/points/blips on clients.
+
+local registeredCraftingBenches = {}
+local registeredCraftingBenchesVersion = 0
+
+local function refreshRegisteredCraftingBenches()
+	registeredCraftingBenchesVersion += 1
+	GlobalState['ox_inventory:registeredCraftingBenchesVersion'] = registeredCraftingBenchesVersion
+end
+
+--- Registers a crafting bench from another resource.
+---
+--- Server export:
+--- ```lua
+--- local success = exports.ox_inventory:RegisterCraftingBench(id, data, options)
+--- ```
+---
+--- `data` uses the same shape as entries in `data/crafting.lua`.
+---
+--- When `ox_target` is enabled, crafting benches use `data.zones`:
+--- ```lua
+--- {
+---     label = 'External Crafting Bench',
+---     items = {
+---         {
+---             name = 'lockpick',
+---             ingredients = { scrapmetal = 5 },
+---             duration = 5000,
+---             count = 1,
+---         },
+---     },
+---     zones = {
+---         {
+---             coords = vec3(-1154.337, -2023.386, 13.697),
+---             size = vec3(2.0, 2.0, 2.0),
+---             rotation = 315.0,
+---             distance = 2.0,
+---         },
+---     },
+--- }
+--- ```
+---
+--- When `ox_target` is not enabled, crafting benches use `data.points`.
+---
+--- `options.display` controls whether ox_inventory creates interaction points:
+--- - `true` or omitted: ox_inventory creates standard crafting zones/points/blips.
+--- - `false`: only recipes/access validation are registered; the calling resource must create its own interaction and open the bench with `openInventory('crafting', { id = id, index = index })`.
+---
+--- Example:
+--- ```lua
+--- local id = ('%s_%s'):format(GetCurrentResourceName(), 1)
+---
+--- exports.ox_inventory:RegisterCraftingBench(id, data, {
+---     display = false,
+--- })
+--- ```
+---
+---@param id number | string Unique crafting bench id.
+---@param data CraftingBench Crafting bench definition.
+---@param options? CraftingBenchRegistrationOptions | boolean Optional registration settings. A boolean is treated as `{ display = options }`.
+---@return boolean success
+local function registerCraftingBench(id, data, options)
+	if not id or type(data) ~= 'table' then return false end
+
+	if type(options) == 'boolean' then
+		options = { display = options }
+	elseif type(options) ~= 'table' then
+		options = {}
+	end
+
+	if CraftingBenches[id]?.items and not registeredCraftingBenches[id] then
+		warn(('failed to register crafting bench "%s" - id already exists'):format(id))
+		return false
+	end
+
+	createCraftingBench(id, data)
+	registeredCraftingBenches[id] = {
+		data = data,
+		options = options,
+	}
+	refreshRegisteredCraftingBenches()
+
+	return true
+end
+
+exports('RegisterCraft', registerCraftingBench)
+exports('RegisterCraftingBench', registerCraftingBench)
+GlobalState['ox_inventory:registeredCraftingBenchesVersion'] = registeredCraftingBenchesVersion
+
+lib.callback.register('ox_inventory:getRegisteredCraftingBenches', function()
+	return registeredCraftingBenches
+end)
+
 ---@param bench table
 ---@param index number
 ---@return table?

@@ -9,9 +9,10 @@ local prompt = {
     message = ('**%s**  \n%s'):format(locale('open_crafting_bench'), locale('interact_prompt', GetControlInstructionalButton(0, 38, true):sub(3)))
 }
 
----@param id number
+---@param id number | string
 ---@param data table
-local function createCraftingBench(id, data)
+---@param display? boolean
+local function createCraftingBench(id, data, display)
 	CraftingBenches[id] = {}
 	local recipes = data.items
 
@@ -30,14 +31,16 @@ local function createCraftingBench(id, data)
 			end
 		end
 
-		local blip = data.blip
+		local blip = display ~= false and data.blip
 
 		if blip then
 			blip.name = blip.name or ('ox_crafting_%s'):format(data.label and id or 0)
 			AddTextEntry(blip.name, data.label or locale('crafting_bench'))
 		end
 
-		if shared.target then
+		if display == false then
+			CraftingBenches[id] = data
+		elseif shared.target then
 			data.points = nil
             if data.zones then
     			for i = 1, #data.zones do
@@ -94,5 +97,24 @@ local function createCraftingBench(id, data)
 end
 
 for id, data in pairs(lib.load('data.crafting') or {}) do createCraftingBench(data.name or id, data) end
+
+local function registerCraftingBenches(benches)
+	for id, bench in pairs(benches or {}) do
+		if not CraftingBenches[id]?.items then
+			local data = bench.data or bench
+			local options = bench.options or {}
+
+			createCraftingBench(id, data, options.display)
+		end
+	end
+end
+
+CreateThread(function()
+	registerCraftingBenches(lib.callback.await('ox_inventory:getRegisteredCraftingBenches', false))
+end)
+
+AddStateBagChangeHandler('ox_inventory:registeredCraftingBenchesVersion', 'global', function()
+	registerCraftingBenches(lib.callback.await('ox_inventory:getRegisteredCraftingBenches', false))
+end)
 
 return CraftingBenches
