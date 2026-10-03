@@ -387,9 +387,8 @@ return {
         weight = 1000,
         stack = false,
         consume = 0,
-        server = {
-            export = 'z_phone.UsePhone',
-            test = 'what an amazingly delicious burger, amirite?'
+        client = {
+            export = 'js5m_phone.OpenPhone'
         }
     },
     ['rolex'] = {
